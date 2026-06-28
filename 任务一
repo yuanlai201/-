@@ -1,0 +1,333 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <ctype.h>
+// 清空输入缓冲区
+void clear_input() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+}
+// 暂停并等待回车
+void pause() {
+    printf("\n按回车键继续...");
+    clear_input();
+    getchar();
+}
+// ==================== 运算函数模块 ====================
+// 加法
+double add(double a, double b) {
+    return a + b;
+}
+// 减法
+double sub(double a, double b) {
+    return a - b;
+}
+// 乘法
+double mul(double a, double b) {
+    return a * b;
+}
+// 除法
+double div_func(double a, double b) {   // 避免与 stdlib.h 中的 div 冲突
+    if (b == 0) {
+        printf("错误：除数不能为零！\n");
+        return NAN;
+    }
+    return a / b;
+}
+// 取余（针对整数运算，但这里用double取模，仅在整数时有效）
+double mod_func(double a, double b) {
+    if (b == 0) {
+        printf("错误：取余不能为零！\n");
+        return NAN;
+    }
+    return fmod(a, b);
+}
+// 倒数
+double inv(double a) {
+    if (a == 0) {
+        printf("错误：0 没有倒数！\n");
+        return NAN;
+    }
+    return 1.0 / a;
+}
+// 幂运算
+double power(double base, double exp) {
+    return pow(base, exp);
+}
+// 正弦（角度制）
+double sin_deg(double deg) {
+    return sin(deg * M_PI / 180.0);
+}
+// 余弦（角度制）
+double cos_deg(double deg) {
+    return cos(deg * M_PI / 180.0);
+}
+// 正切（角度制）
+double tan_deg(double deg) {
+    double rad = deg * M_PI / 180.0;
+    double t = tan(rad);
+    if (fabs(t) > 1e15) {
+        printf("错误：该角度正切值不存在（接近无穷大）\n");
+        return NAN;
+    }
+    return t;
+}
+// 求π
+double get_pi() {
+    return M_PI;
+}
+// 阶乘（整数，使用double避免大数溢出）
+double factorial(int n) {
+    if (n < 0) {
+        printf("错误：阶乘要求 n ≥ 0\n");
+        return NAN;
+    }
+    if (n > 170) {
+        printf("错误：数值过大，超出double表示范围\n");
+        return NAN;
+    }
+    double result = 1.0;
+    for (int i = 2; i <= n; i++) {
+        result *= i;
+    }
+    return result;
+}
+// ==================== 输入辅助函数 ====================
+// 读取一个double值，若失败则返回NAN并提示
+double read_double(const char* prompt) {
+    double val;
+    printf("%s", prompt);
+    if (scanf("%lf", &val) != 1) {
+        clear_input();
+        printf("输入无效，请重新输入。\n");
+        return NAN;
+    }
+    clear_input();
+    return val;
+}
+// 读取一个整数，若失败则返回-1（适用于阶乘）
+int read_int(const char* prompt) {
+    int val;
+    printf("%s", prompt);
+    if (scanf("%d", &val) != 1) {
+        clear_input();
+        printf("输入无效，请重新输入。\n");
+        return -1;
+    }
+    clear_input();
+    return val;
+}
+// ==================== 菜单显示与流程控制 ====================
+// 主菜单
+void main_menu() {
+    printf("\n========= 多功能计算器系统 =========\n");
+    printf("  1. 六则运算\n");
+    printf("  2. 幂运算\n");
+    printf("  3. 三角函数\n");
+    printf("  4. 求 π\n");
+    printf("  5. 阶乘运算\n");
+    printf("  0. 退出系统\n");
+    printf("====================================\n");
+    printf("请选择（输入数字）: ");
+}
+// 六则运算子菜单
+void arithmetic_menu() {
+    printf("\n--------- 六则运算 ---------\n");
+    printf("  1. 加法 (a + b)\n");
+    printf("  2. 减法 (a - b)\n");
+    printf("  3. 乘法 (a * b)\n");
+    printf("  4. 除法 (a / b)\n");
+    printf("  5. 取余 (a %% b)\n");
+    printf("  6. 倒数 (1 / a)\n");
+    printf("  0. 返回主菜单\n");
+    printf("----------------------------\n");
+    printf("请选择运算: ");
+}
+// 三角函数子菜单
+void trig_menu() {
+    printf("\n--------- 三角函数 (角度制) ---------\n");
+    printf("  1. sin(θ)\n");
+    printf("  2. cos(θ)\n");
+    printf("  3. tan(θ)\n");
+    printf("  0. 返回主菜单\n");
+    printf("------------------------------------\n");
+    printf("请选择函数: ");
+}
+// ==================== 各功能执行函数 ====================
+void arithmetic_handler() {
+    int choice;
+    while (1) {
+        arithmetic_menu();
+        if (scanf("%d", &choice) != 1) {
+            clear_input();
+            printf("输入无效，请重新选择。\n");
+            continue;
+        }
+        clear_input();
+        if (choice == 0) break;
+        double a, b, result;
+        int valid = 1;
+        switch (choice) {
+            case 1: // 加法
+                a = read_double("请输入 a: ");
+                if (isnan(a)) break;
+                b = read_double("请输入 b: ");
+                if (isnan(b)) break;
+                result = add(a, b);
+                printf("结果: %.6g + %.6g = %.6g\n", a, b, result);
+                break;
+            case 2: // 减法
+                a = read_double("请输入 a: ");
+                if (isnan(a)) break;
+                b = read_double("请输入 b: ");
+                if (isnan(b)) break;
+                result = sub(a, b);
+                printf("结果: %.6g - %.6g = %.6g\n", a, b, result);
+                break;
+            case 3: // 乘法
+                a = read_double("请输入 a: ");
+                if (isnan(a)) break;
+                b = read_double("请输入 b: ");
+                if (isnan(b)) break;
+                result = mul(a, b);
+                printf("结果: %.6g * %.6g = %.6g\n", a, b, result);
+                break;
+            case 4: // 除法
+                a = read_double("请输入 a: ");
+                if (isnan(a)) break;
+                b = read_double("请输入 b: ");
+                if (isnan(b)) break;
+                result = div_func(a, b);
+                if (!isnan(result))
+                    printf("结果: %.6g / %.6g = %.6g\n", a, b, result);
+                break;
+            case 5: // 取余
+                a = read_double("请输入 a: ");
+                if (isnan(a)) break;
+                b = read_double("请输入 b: ");
+                if (isnan(b)) break;
+                result = mod_func(a, b);
+                if (!isnan(result))
+                    printf("结果: %.6g %% %.6g = %.6g\n", a, b, result);
+                break;
+            case 6: // 倒数
+                a = read_double("请输入 a: ");
+                if (isnan(a)) break;
+                result = inv(a);
+                if (!isnan(result))
+                    printf("结果: 1 / %.6g = %.6g\n", a, result);
+                break;
+            default:
+                printf("无效选项！\n");
+                valid = 0;
+        }
+        if (valid) pause();
+    }
+}
+void power_handler() {
+    double base = read_double("请输入底数: ");
+    if (isnan(base)) return;
+    double exp = read_double("请输入指数: ");
+    if (isnan(exp)) return;
+    double result = power(base, exp);
+    printf("结果: %.6g ^ %.6g = %.6g\n", base, exp, result);
+    pause();
+}
+void trig_handler() {
+    int choice;
+    while (1) {
+        trig_menu();
+        if (scanf("%d", &choice) != 1) {
+            clear_input();
+            printf("输入无效，请重新选择。\n");
+            continue;
+        }
+        clear_input();
+        if (choice == 0) break;
+        double angle, result;
+        switch (choice) {
+            case 1:
+                angle = read_double("请输入角度 θ (度): ");
+                if (isnan(angle)) break;
+                result = sin_deg(angle);
+                if (!isnan(result))
+                    printf("sin(%.6g°) = %.6g\n", angle, result);
+                break;
+            case 2:
+                angle = read_double("请输入角度 θ (度): ");
+                if (isnan(angle)) break;
+                result = cos_deg(angle);
+                if (!isnan(result))
+                    printf("cos(%.6g°) = %.6g\n", angle, result);
+                break;
+            case 3:
+                angle = read_double("请输入角度 θ (度): ");
+                if (isnan(angle)) break;
+                result = tan_deg(angle);
+                if (!isnan(result))
+                    printf("tan(%.6g°) = %.6g\n", angle, result);
+                break;
+            default:
+                printf("无效选项！\n");
+        }
+        pause();
+    }
+}
+void pi_handler() {
+    double pi = get_pi();
+    printf("圆周率 π = %.15g\n", pi);
+    pause();
+}
+void factorial_handler() {
+    int n = read_int("请输入非负整数 n: ");
+    if (n < 0) {
+        printf("输入无效！\n");
+        pause();
+        return;
+    }
+    double result = factorial(n);
+    if (!isnan(result)) {
+        if (n <= 20)
+            printf("%d! = %.0f\n", n, result);
+        else
+            printf("%d! = %.6e (科学计数法)\n", n, result);
+    }
+    pause();
+}
+// ==================== 主程序 ====================
+int main() {
+    int choice;
+    while (1) {
+        main_menu();
+        if (scanf("%d", &choice) != 1) {
+            clear_input();
+            printf("输入无效，请重新选择。\n");
+            continue;
+        }
+        clear_input();
+        switch (choice) {
+            case 0:
+                printf("感谢使用，再见！\n");
+                exit(0);
+            case 1:
+                arithmetic_handler();
+                break;
+            case 2:
+                power_handler();
+                break;
+            case 3:
+                trig_handler();
+                break;
+            case 4:
+                pi_handler();
+                break;
+            case 5:
+                factorial_handler();
+                break;
+            default:
+                printf("无效选项，请重新选择。\n");
+                pause();
+        }
+    }
+    return 0;
+}
